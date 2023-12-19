@@ -1,0 +1,47 @@
+@font-face {
+  font-family: "BabelStoneShapes";
+  src: local("BabelStoneShapes"), url("BabelStoneShapes.woff2") format("woff2");
+}
+html, body {
+  height: 100%;
+  width:100%;
+  margin:0;
+}
+body, pre {
+  font-family: 'BabelStoneShapes';
+  line-height: 1;
+  margin:0;
+}
+main {
+  display:flex;
+  height: 100%;
+  width:100%;
+}
+.canvas {
+  flex:1;
+  font-size:2rem;
+  display: grid;
+  place-items: center;
+}
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SIDEBAR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+.sidebar {
+  height: 100%;
+  overflow: auto;
+  flex-basis: 20%;
+}
+.sidebar ul {
+  list-style: none;
+  padding:0;
+  margin:0;
+  display: flex;
+  flex-wrap: wrap;
+}
+.sidebar ul li {
+  cursor: pointer;
+  content-visibility:auto;
+}
+.sidebar ul li:hover {
+  background:lime;
+}

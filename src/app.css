@@ -1,0 +1,77 @@
+:root {
+  --main-bg-color: #000000;
+  --text-color: white;
+
+  font-family: 'BabelStoneShapes', sans-serif;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: var(--text-color);
+  background-color: var(--main-bg-color);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+@font-face {
+  font-family: "BabelStoneShapes";
+  src: local("BabelStoneShapes"), url("BabelStoneShapes.woff2") format("woff2");
+}
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+body, pre, button {
+  font-family: 'BabelStoneShapes';
+  line-height: 1;
+  margin:0;
+}
+main {
+  display:flex;
+  height: 100%;
+  width:100%;
+}
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+SIDEBAR
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+.sidebar {
+  height: 100%;
+  overflow: auto;
+  flex-basis: 8rem;
+}
+.sidebar ul {
+  list-style: none;
+  padding:0;
+  margin:0;
+  display: flex;
+  flex-wrap: wrap;
+}
+.sidebar ul li {
+  cursor: pointer;
+  content-visibility:auto;
+}
+.sidebar ul li:hover {
+  background:lime;
+  color:#000000;
+}
+
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --main-bg-color: #ddd;
+    color: #213547;
+    background-color: var(--main-bg-color);;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button {
+    background-color: #f9f9f9;
+  }
+}
