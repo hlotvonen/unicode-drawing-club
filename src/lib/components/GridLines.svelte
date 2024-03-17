@@ -1,5 +1,5 @@
 <script>
-  import { grid } from "./store";
+  import { grid } from "../store.js";
 </script>
 
 <svg
@@ -17,8 +17,9 @@
       <path
         d={`M ${$grid.fontSize} 0 L 0 0 0 ${$grid.fontSize}`}
         fill="none"
-        stroke="grey"
+        stroke="var(--foregroundColor)"
         stroke-width="0.5"
+        opacity="0.3"
       />
     </pattern>
   </defs>
@@ -26,7 +27,7 @@
     width="100%"
     height="100%"
     fill="url(#smallGrid)"
-    stroke="black"
+    stroke=" var(--foregroundColor)"
     stroke-width="0.5"
   />
 </svg>
@@ -34,5 +35,8 @@
 <style>
   svg {
     position: absolute;
+    pointer-events: none;
+    top: 0;
+    left: 0;
   }
 </style>
