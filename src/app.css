@@ -11,7 +11,7 @@
 
 @font-face {
   font-family: "Unscii";
-  src: url("unscii-16-full.woff") format("woff");
+  src: url("../public/unscii-16-full.woff") format("woff");
 }
 html, body {
   height: 100%;
