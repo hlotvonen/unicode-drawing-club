@@ -12,8 +12,6 @@
 	$: width = ($grid.fontSize / 2) * (end_x - start_x + 1)
 	$: height = $grid.fontSize * (end_y - start_y + 1)
 
-  $: console.log($selectedArea.end[1], $grid.width)
-
   $: if ($selectedArea.end[1] >= $grid.width) {
     $selectedArea.end[1]--;
   }
@@ -25,6 +23,12 @@
   }
   $: if ($selectedArea.start[0] <= 0) {
     $selectedArea.start[0] = 0;
+  }
+  $: if ($selectedArea.end[1] <= 0) {
+    $selectedArea.end[1] = 0;
+  }
+  $: if ($selectedArea.end[0] <= 0) {
+    $selectedArea.end[0] = 0;
   }
 
 </script>

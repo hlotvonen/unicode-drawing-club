@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
 import { writable } from "@macfja/svelte-persistent-store";
-import { getBoundingRectangle } from './utils/geometry';
 
 export let timelapseRunning = writable("timelapseRunning", false);
 export const selected = writable("selected", {
@@ -89,56 +88,3 @@ export function moveCursor(axis, amount) {
       return { ...cursor, [axis]: clampedPos };
   });
 }
-
-// function getSelectedArea(selectionAreaValues, cursorPosValues) {
-//   if (!selectionAreaValues.start) {
-//     return null
-//   }
-//   if (selectionAreaValues.start && !selectionAreaValues.end) {
-//     return getBoundingRectangle(selectionAreaValues.start, [
-//       cursorPosValues.y,
-//       cursorPosValues.x,
-//     ])
-//   }
-//   return [selectionAreaValues.start, this.selectionArea.end]
-// }
-
-// export function selectArea(axis, amount) {
-//   moveCursor(axis, amount)
-  
-//   const selectionAreaValues = get(selectionArea);
-//   const cursorPosValues = get(cursorPos);
-
-//   if (selectionAreaValues.start && !selectionAreaValues.end) {
-//     const [selectionStart, selectionEnd] = getSelectedArea(selectionAreaValues, cursorPosValues)
-//     selectionArea.update(current => {
-//       return {
-//         start: selectionStart,
-//         end: selectionEnd
-//       };
-//     });
-//   } else {
-//     selectionArea.update(current => {
-//       return {
-//         start: [cursorPosValues.y, cursorPosValues.x],
-//         end: [0, 0]
-//       };
-//     });
-//   }
-// }
-// export function getSelectedArea() {
-//   const selectionAreaValues = get(selectionArea);
-//   const selectionAreaValues = get(selectionArea);
-
-//   if (!selectionAreaValues.start) {
-//     return null
-//   }
-
-//   if (selectionAreaValues.start && !selectionAreaValues.end) {
-//     return getBoundingRectangle(selectionAreaValues.start, [
-//       this.selected_y,
-//       this.selected_x,
-//     ])
-//   }
-//   return [this.selectionArea.start, this.selectionArea.end]
-// }

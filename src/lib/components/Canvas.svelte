@@ -15,15 +15,19 @@
   } from "../store.js";
   import MousePan from "./MousePan.svelte";
   import Toolbar from "./Toolbar.svelte";
-  import { undo, redo, replaceCell } from "../commands";
+  import { undo, redo, replaceCell, pasteGrid } from "../commands";
   import SelectionArea from "./SelectionArea.svelte";
 
-  function automaticallyShowMobileControls() {
-    // check if screen is in portait mode
-    const aspectRatio = window.innerWidth / window.innerHeight;
-    if(aspectRatio <= 1) {
-      $settings.mobileControls = true;
-    }
+	let key;
+  let shiftDown = false;
+  let showSelectionArea = false;
+	let mouseIsDown = false;
+  let copiedArray = [];
+
+  $: showSelectionArea = JSON.stringify($selectedArea.start) !== JSON.stringify($selectedArea.end)
+  $: if(shiftDown) {
+    $selectedArea.start = [$cursorPos.y, $cursorPos.x] 
+    $selectedArea.end = [$cursorPos.y, $cursorPos.x] 
   }
 
   onMount(() => {
@@ -33,44 +37,76 @@
       createEmptyCanvas($grid.height, $grid.width);
     }
   });
-
-  let showSelectionArea = false;
-  $: showSelectionArea = JSON.stringify($selectedArea.start) !== JSON.stringify($selectedArea.end)
-
-	let mouseIsDown = false;
-
+	function handleKeydown(event) {
+		key = event.key;
+		if(key === "Shift") {
+			shiftDown = true;
+		}
+	}
+	function handleKeyup(event) {
+		key = event.key;
+		if(key === "Shift") {
+		  shiftDown = false;
+		}
+	}
+  function automaticallyShowMobileControls() {
+    // check if screen is in portait mode
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    if(aspectRatio <= 1) {
+      $settings.mobileControls = true;
+    }
+  }
   function startSelection(x, y) {
-    mouseIsDown = true;
-    $selectedArea.start = [x, y];
-    $selectedArea.end = [x, y];
+    $selectedArea.start = [x, y]
+    $selectedArea.end = [x, y]
 	}
 	function assessSelection(x, y) {
-    if (!mouseIsDown) return;
-    $selectedArea.end = [x, y];
+    $selectedArea.end = [x, y]
   }
-	function endSelection(x, y) {
-    if (!mouseIsDown) return;
-    $selectedArea.end = [x, y];
-    mouseIsDown = false;
-	}
-	
-  function handleClick(x, y) {
-    if($settings.selectingArea) return;
-    $cursorPos.x = x;
-    $cursorPos.y = y;
+  function handleClick(event, x, y) {
+    $cursorPos.x = x
+    $cursorPos.y = y
   }
-  function handleMouseDown(x, y) {
+  function handleMouseDown(event, x, y) {
+    if (event.button !== 0) return // Ensure left-click
+    mouseIsDown = true
     startSelection(x,y)
   }
-  function handleMouseMove(x, y) {
+  function handleMouseMove(event, x, y) {
+    if (!mouseIsDown) return
     assessSelection(x,y)
   }
-  function handleMouseUp(x, y) {
-    endSelection(x,y)
+  function handleMouseUp(event, x, y) {
+    if (!mouseIsDown) return
+    assessSelection(x,y)
+    mouseIsDown = false
+  }
+  function updateSelectionArea(axis, amount) {
+    switch (axis) {
+      case 'x':
+        assessSelection($selectedArea.end[0], $selectedArea.end[1] + amount)
+        break;
+      case 'y':
+        assessSelection($selectedArea.end[0] + amount, $selectedArea.end[1])
+        break;
+      default:
+        console.log(`Can't make selection bigger in ${axis} direction.`);
+    }
+  }
+  function copy(y, x) {
+    if(showSelectionArea) {
+      copiedArray = $grid.data.slice($selectedArea.start[0], $selectedArea.end[0] + 1).map(row => row.slice($selectedArea.start[1], $selectedArea.end[1] + 1));
+    } else {
+      $selected.unicode = $grid.data[y][x].unicode
+    }
+  }
+  function paste(copiedArray, x, y) {
+    pasteGrid(copiedArray, x, y)
   }
 
-
 </script>
+
+<svelte:window on:keydown|preventDefault={handleKeydown} on:keyup|preventDefault={handleKeyup}/>
 
 <div class="main-wrapper">
   <div class="toolbar-wrapper">
@@ -84,10 +120,10 @@
       use:shortcut={{ code: "ArrowUp", callback: () => moveCursor("y", -1) }}
       use:shortcut={{ code: "ArrowDown", callback: () => moveCursor("y", 1) }}
 
-      use:shortcut={{ shift: true, code: "ArrowRight", callback: () => selectArea() }}
-      use:shortcut={{ shift: true, code: "ArrowLeft", callback: () => selectArea() }}
-      use:shortcut={{ shift: true, code: "ArrowUp", callback: () => selectArea() }}
-      use:shortcut={{ shift: true, code: "ArrowDown", callback: () => selectArea() }}
+      use:shortcut={{ shift: true, code: "ArrowRight", callback: () => updateSelectionArea("x", 1) }}
+      use:shortcut={{ shift: true, code: "ArrowLeft", callback: () => updateSelectionArea("x", -1) }}
+      use:shortcut={{ shift: true, code: "ArrowUp", callback: () => updateSelectionArea("y", -1) }}
+      use:shortcut={{ shift: true, code: "ArrowDown", callback: () => updateSelectionArea("y", 1) }}
 
       use:shortcut={{
         code: "KeyQ",
@@ -109,6 +145,17 @@
         code: "KeyZ",
         callback: () => redo(),
       }}
+      use:shortcut={{
+        control: true,
+        code: "KeyC",
+        callback: () => copy($cursorPos.y, $cursorPos.x)
+      }}
+      use:shortcut={{
+        control: true,
+        code: "KeyV",
+        callback: () => paste(copiedArray, $cursorPos.x, $cursorPos.y)
+      }}
+
     >
       <MousePan>
         <div
@@ -142,13 +189,10 @@
                   {#if $grid.data[y][x].width !== "zero"}
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <span
-                      on:click|preventDefault={() => handleClick(x, y)}
-                      on:mousedown|preventDefault={() => handleMouseDown(y, x)}
-                      on:mousemove|preventDefault={() => handleMouseMove(y, x)}
-                      on:mouseup|preventDefault={() => handleMouseUp(y, x)}
-                      on:touchstart|preventDefault={() => handleMouseDown(y, x)}
-                      on:touchmove|preventDefault={() => handleMouseMove(y, x)}
-                      on:touchend|preventDefault={() => handleMouseUp(y, x)}
+                      on:click|preventDefault={(event) => handleClick(event, x, y)}
+                      on:mousedown|preventDefault={(event) => handleMouseDown(event, y, x)}
+                      on:mousemove|preventDefault={(event) => handleMouseMove(event, y, x)}
+                      on:mouseup|preventDefault={(event) => handleMouseUp(event, y, x)}
                     >
                       {@html "&#" + $grid.data[y][x].unicode + ";"}
                     </span>

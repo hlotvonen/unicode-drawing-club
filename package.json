@@ -16,6 +16,7 @@
   "dependencies": {
     "@macfja/svelte-persistent-store": "^2.4.1",
     "browser-fs-access": "^0.35.0",
+    "lodash": "^4.17.21",
     "paneforge": "^0.0.2"
   }
 }
