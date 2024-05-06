@@ -1,16 +1,16 @@
 import { get } from 'svelte/store';
 import { writable } from "@macfja/svelte-persistent-store";
+import { getBoundingRectangle } from './utils/geometry';
 
 export let timelapseRunning = writable("timelapseRunning", false);
 export const selected = writable("selected", {
-  unicode: 67,
-  width: "half",
+  unicode: 67
 });
 export const preview = writable("preview", {
-  unicode: 67,
-  width: "half",
+  unicode: 67
 });
 export const cursorPos = writable("cursorPos", { x: 0, y: 0 });
+export const selectedArea = writable("selectedArea", { start: [2,5], end: [3, 10] });
 export const grid = writable("grid", {
   font: "Unscii",
   width: 16,
@@ -38,12 +38,12 @@ export const settings = writable("settings", {
   pageNumberLeft: 0,
   pageNumberRight: 0,
   mobileControls: true,
-  checkeredBackground: true
+  checkeredBackground: true,
+  selectingArea: true
 });
-export function select(unicode, width) {
+export function select(unicode) {
   selected.set({
-    unicode: unicode,
-    width: width,
+    unicode: unicode
   });
 }
 export const createEmptyCanvas = (height, width) => {
@@ -60,8 +60,7 @@ export const getEmptyRow = (width) => {
 export const getEmptyCell = () => {
   //unicode for en space 8194
   return {
-    unicode: 160,
-    width: "half",
+    unicode: 160
   };
 };
 
@@ -90,3 +89,56 @@ export function moveCursor(axis, amount) {
       return { ...cursor, [axis]: clampedPos };
   });
 }
+
+// function getSelectedArea(selectionAreaValues, cursorPosValues) {
+//   if (!selectionAreaValues.start) {
+//     return null
+//   }
+//   if (selectionAreaValues.start && !selectionAreaValues.end) {
+//     return getBoundingRectangle(selectionAreaValues.start, [
+//       cursorPosValues.y,
+//       cursorPosValues.x,
+//     ])
+//   }
+//   return [selectionAreaValues.start, this.selectionArea.end]
+// }
+
+// export function selectArea(axis, amount) {
+//   moveCursor(axis, amount)
+  
+//   const selectionAreaValues = get(selectionArea);
+//   const cursorPosValues = get(cursorPos);
+
+//   if (selectionAreaValues.start && !selectionAreaValues.end) {
+//     const [selectionStart, selectionEnd] = getSelectedArea(selectionAreaValues, cursorPosValues)
+//     selectionArea.update(current => {
+//       return {
+//         start: selectionStart,
+//         end: selectionEnd
+//       };
+//     });
+//   } else {
+//     selectionArea.update(current => {
+//       return {
+//         start: [cursorPosValues.y, cursorPosValues.x],
+//         end: [0, 0]
+//       };
+//     });
+//   }
+// }
+// export function getSelectedArea() {
+//   const selectionAreaValues = get(selectionArea);
+//   const selectionAreaValues = get(selectionArea);
+
+//   if (!selectionAreaValues.start) {
+//     return null
+//   }
+
+//   if (selectionAreaValues.start && !selectionAreaValues.end) {
+//     return getBoundingRectangle(selectionAreaValues.start, [
+//       this.selected_y,
+//       this.selected_x,
+//     ])
+//   }
+//   return [this.selectionArea.start, this.selectionArea.end]
+// }

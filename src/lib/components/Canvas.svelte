@@ -10,11 +10,13 @@
     settings,
     createEmptyCanvas,
     getEmptyCell,
-    moveCursor
+    moveCursor,
+    selectedArea
   } from "../store.js";
   import MousePan from "./MousePan.svelte";
   import Toolbar from "./Toolbar.svelte";
   import { undo, redo, replaceCell } from "../commands";
+  import SelectionArea from "./SelectionArea.svelte";
 
   function automaticallyShowMobileControls() {
     // check if screen is in portait mode
@@ -32,59 +34,41 @@
     }
   });
 
-  /*
-  const insert = (y, x, selected) => {
-    //stats
-    if (selected.unicode === 8194) {
-      $grid.stats.deletes++;
-    } else {
-      $grid.stats.inserts++;
-    }
-    $grid.stats.keysPressed++;
+  let showSelectionArea = false;
+  $: showSelectionArea = JSON.stringify($selectedArea.start) !== JSON.stringify($selectedArea.end)
 
-    if (selected.width === "full") {
-      //if at the end of row, can't insert full width characters
-      if (x + 1 >= $grid.data[y].length) return;
+	let mouseIsDown = false;
 
-      //if next character is half width, remove it
-      if (
-        $grid.data[y][x + 1].width === "half" &&
-        $grid.data[y][x].width === "half"
-      ) {
-        removeCell(y, x + 1);
-      }
-      //if next character is full width, replace it with en space
-      if ($grid.data[y][x + 1].width === "full") {
-        $grid.data[y][x + 1] = getEmptyCell();
-        $grid.data[y][x + 2] = getEmptyCell();
-        removeCell(y, x + 1);
-      }
-      //if previous character is full width, replace it with en space
-      if ($grid.data[y][x - 1]?.width === "full") {
-        $grid.data[y][x - 1] = getEmptyCell();
-        removeCell(y, x + 1);
-      }
-      //if current character is zero width, remove previous
-      if ($grid.data[y][x]?.width === "zero") {
-        $grid.data[y][x - 1] = getEmptyCell();
-        removeCell(y, x + 1);
-      }
-    }
+  function startSelection(x, y) {
+    mouseIsDown = true;
+    $selectedArea.start = [x, y];
+    $selectedArea.end = [x, y];
+	}
+	function assessSelection(x, y) {
+    if (!mouseIsDown) return;
+    $selectedArea.end = [x, y];
+  }
+	function endSelection(x, y) {
+    if (!mouseIsDown) return;
+    $selectedArea.end = [x, y];
+    mouseIsDown = false;
+	}
+	
+  function handleClick(x, y) {
+    if($settings.selectingArea) return;
+    $cursorPos.x = x;
+    $cursorPos.y = y;
+  }
+  function handleMouseDown(x, y) {
+    startSelection(x,y)
+  }
+  function handleMouseMove(x, y) {
+    assessSelection(x,y)
+  }
+  function handleMouseUp(x, y) {
+    endSelection(x,y)
+  }
 
-    if (selected.width === "half") {
-      //if next character is full width, replace it with en space
-      if ($grid.data[y][x].width === "full") {
-        $grid.data[y][x + 1] = getEmptyCell();
-      }
-      //if previous character is full width, replace it with en space
-      if ($grid.data[y][x - 1]?.width === "full") {
-        $grid.data[y][x - 1] = getEmptyCell();
-      }
-    }
-
-    $grid.data[y][x] = selected;
-  };
-  */
 
 </script>
 
@@ -99,6 +83,12 @@
       use:shortcut={{ code: "ArrowLeft", callback: () => moveCursor("x", -1) }}
       use:shortcut={{ code: "ArrowUp", callback: () => moveCursor("y", -1) }}
       use:shortcut={{ code: "ArrowDown", callback: () => moveCursor("y", 1) }}
+
+      use:shortcut={{ shift: true, code: "ArrowRight", callback: () => selectArea() }}
+      use:shortcut={{ shift: true, code: "ArrowLeft", callback: () => selectArea() }}
+      use:shortcut={{ shift: true, code: "ArrowUp", callback: () => selectArea() }}
+      use:shortcut={{ shift: true, code: "ArrowDown", callback: () => selectArea() }}
+
       use:shortcut={{
         code: "KeyQ",
         callback: () =>
@@ -129,23 +119,36 @@
             height:{$grid.height * $grid.fontSize}px
           "
         >
+
           {#if $settings.showGrid}
             <GridLines />
           {/if}
           {#if $settings.showCursor}
             <Cursor />
           {/if}
+          {#if showSelectionArea}
+            <SelectionArea />
+          {/if}
 
-          <div class="grid">
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div 
+            class="grid" 
+            on:mouseleave|preventDefault={() => mouseIsDown = false}
+          >
             {#each $grid.data as row, y}
               <div class="row">
                 {#each row as col, x}
+                  <!-- svelte-ignore a11y-no-static-element-interactions -->
                   {#if $grid.data[y][x].width !== "zero"}
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <span
-                      on:click={() => {
-                        $cursorPos.x = x;
-                        $cursorPos.y = y;
-                      }}
+                      on:click|preventDefault={() => handleClick(x, y)}
+                      on:mousedown|preventDefault={() => handleMouseDown(y, x)}
+                      on:mousemove|preventDefault={() => handleMouseMove(y, x)}
+                      on:mouseup|preventDefault={() => handleMouseUp(y, x)}
+                      on:touchstart|preventDefault={() => handleMouseDown(y, x)}
+                      on:touchmove|preventDefault={() => handleMouseMove(y, x)}
+                      on:touchend|preventDefault={() => handleMouseUp(y, x)}
                     >
                       {@html "&#" + $grid.data[y][x].unicode + ";"}
                     </span>
@@ -192,6 +195,7 @@
   }
   .grid {
     cursor: cell;
+    user-select: none;
   }
   span {
     display: inline-block;

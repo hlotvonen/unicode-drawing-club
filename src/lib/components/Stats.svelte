@@ -55,7 +55,7 @@
     <ul>
       {#each $grid.stats.unicodeFrequency as unicodeCountPairs}
         <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <li on:click={() => select(unicodeCountPairs[0], "half")}>
+        <li on:click={() => select(unicodeCountPairs[0])}>
           {@html "&#" +
             unicodeCountPairs[0] +
             "; &times; " +

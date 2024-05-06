@@ -1,8 +1,6 @@
 <script>
   import { cursorPos, grid, selected, preview } from "../store.js";
 
-  let isIllegalPosition = false;
-
   $: if ($cursorPos.x >= $grid.width) {
     $cursorPos.x = $grid.width - 1;
   }
@@ -15,15 +13,6 @@
   $: if ($cursorPos.y <= 0) {
     $cursorPos.y = 0;
   }
-
-  $: if (
-    $selected.width === "full" &&
-    $cursorPos.x + 1 >= $grid.data[$cursorPos.y]?.length
-  ) {
-    isIllegalPosition = true;
-  } else {
-    isIllegalPosition = false;
-  }
   let glyph;
   $: glyph = $preview.unicode === null ? $selected.unicode : $preview.unicode;
 </script>
@@ -35,7 +24,6 @@
       ${$cursorPos.x * ($grid.fontSize / 2)}px, 
       ${$cursorPos.y * $grid.fontSize}px);
     `}
-    style:text-shadow={isIllegalPosition ? "0 0 3px red" : "none"}
   >
     {@html "&#" + glyph + ";"}
   </div>

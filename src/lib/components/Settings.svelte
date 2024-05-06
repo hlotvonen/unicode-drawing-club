@@ -1,7 +1,6 @@
 <script>
   import Stats from "./Stats.svelte";
   import { grid, cursorPos, settings } from "../store.js";
-  import { onMount } from "svelte";
   import {
     addColumn,
     addRow,
@@ -88,6 +87,10 @@
   <label>
     <input type="checkbox" bind:checked={$settings.checkeredBackground} />
     Show checkered background behind glyphs
+  </label>
+  <label>
+    <input type="checkbox" bind:checked={$settings.selectingArea} />
+    Show selectionArea
   </label>
 
   <hr />

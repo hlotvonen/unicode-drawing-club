@@ -13,15 +13,16 @@
   function handleClick(event, selected) {
     event.preventDefault();
     const { x, y } = $cursorPos;
-    const { width, unicode } = selected;
+    const { unicode } = selected;
 
-    select(unicode, width);
+    select(unicode);
     replaceCell(y, x, selected);
   }
+
   function handleRightClick(event, selected) {
     event.preventDefault();
-    const { width, unicode } = selected;
-    select(unicode, width);
+    const { unicode } = selected;
+    select(unicode);
   }
 </script>
 
@@ -32,10 +33,10 @@
     <div class='arrow right' on:click={() => moveCursor("x", 1)}></div>
     <div class='arrow left' on:click={() => moveCursor("x", -1)}></div>
 
-    <button class='topright' on:click={() => replaceCell($cursorPos.y, $cursorPos.x, { ...$selected })}>Insert</button>
-    <button class='bottomright' on:click={() => replaceCell($cursorPos.y, $cursorPos.x, getEmptyCell())}>Delete</button>
-    <button class='topleft' on:click={() => redo()}>Redo</button>
-    <button class='bottomleft' on:click={() => undo()}>Undo</button>
+    <button class='topright' on:click={() => replaceCell($cursorPos.y, $cursorPos.x, { ...$selected })}>INS</button>
+    <button class='bottomright' on:click={() => replaceCell($cursorPos.y, $cursorPos.x, getEmptyCell())}>DEL</button>
+    <button class='topleft' on:click={() => redo()}>REDO</button>
+    <button class='bottomleft' on:click={() => undo()}>UNDO</button>
   {/if}
 
   {#if $grid.font === "Unscii"}
@@ -47,10 +48,10 @@
         <li
           style="width:{$grid.fontSize * $settings.glyphsZoom}px"
           class="{$settings.checkeredBackground ? 'checkeredBackground' : ''}"
-          on:click={(event) => handleClick(event, { unicode, width: "half" })}
+          on:click={(event) => handleClick(event, { unicode})}
           on:contextmenu={(event) =>
-            handleRightClick(event, { unicode, width: "half" })}
-          on:mouseenter={() => ($preview = { unicode, width: "half" })}
+            handleRightClick(event, { unicode})}
+          on:mouseenter={() => ($preview = { unicode })}
           on:mouseleave={() => ($preview.unicode = null)}
         >
           {@html "&#x" + unicode.toString(16) + ";"}
@@ -68,8 +69,8 @@
       "left center right" 
       "bottomleft bottom bottomright"
     ;
-    grid-template-rows: 48px 1fr 48px;
-    grid-template-columns: 48px 1fr 48px;
+    grid-template-rows: 30px 1fr 30px;
+    grid-template-columns: 30px 1fr 30px;
   }
   .glyphs-grid {
     display: grid;
@@ -104,9 +105,9 @@
   .glyphs li.checkeredBackground {
     box-shadow: 0 0 0.5px inset var(--foregroundColor);
     background: conic-gradient(
-      color-mix(in srgb, currentColor 5%, transparent) 0 .25turn,
+      transparent 0 .25turn,
       color-mix(in srgb, currentColor 10%, transparent) 0 .5turn,
-      color-mix(in srgb, currentColor 5%, transparent) 0 .75turn,
+      transparent 0 .75turn,
       color-mix(in srgb, currentColor 10%, transparent) 0 1turn
     );
   }
@@ -119,7 +120,12 @@
       color-mix(in srgb, var(--highlightColor) 100%, transparent) 0 1turn
     );
   }
-
+  .mobilecontrols button {
+    writing-mode: vertical-rl;
+    text-combine-upright: all;
+    font-size: 18px;
+    text-align: center;
+  }
   .arrow {
     opacity: 0.2;
     user-select: none;
