@@ -1,15 +1,24 @@
 // AddColumnCommand.js
 export class AddColumnCommand {
-  constructor(gridStore, getEmptyCell) {
+  constructor(gridStore, getEmptyCell, direction, x) {
     this.gridStore = gridStore;
     this.getEmptyCell = getEmptyCell;
-    this.addedColumnIndex = null; // To track the index of the added column for undo
+    this.addedColumnIndex = null;
+    this.direction = direction;
+    this.x = x;
   }
 
   execute() {
     this.gridStore.update((grid) => {
-      const newColumnIndex = grid.width; // Assuming width represents the number of columns
-      grid.data.forEach((row) => row.push(this.getEmptyCell()));
+      let newColumnIndex = 0;
+      if(this.direction === 'right') {
+        newColumnIndex = this.x + 1;
+        grid.data.forEach((row) => row.splice(this.x + 1, 0, this.getEmptyCell()));
+      }
+      if(this.direction === 'left') {
+        newColumnIndex = this.x;
+        grid.data.forEach((row) => row.splice(this.x, 0, this.getEmptyCell()));
+      }
       grid.width += 1;
       this.addedColumnIndex = newColumnIndex;
       return { ...grid };

@@ -15,12 +15,12 @@ export function undo() {
 export function redo() {
   commands.redo();
 }
-export function addColumn() {
-  const command = new AddColumnCommand(grid, getEmptyCell);
+export function addColumn(direction, x) {
+  const command = new AddColumnCommand(grid, getEmptyCell, direction, x);
   commands.execute(command);
 }
-export function addRow() {
-  const command = new AddRowCommand(grid, getEmptyRow);
+export function addRow(direction, y) {
+  const command = new AddRowCommand(grid, getEmptyRow, direction, y);
   commands.execute(command);
 }
 export function removeColumn() {

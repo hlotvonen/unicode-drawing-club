@@ -10,12 +10,23 @@
     settings,
     createEmptyCanvas,
     getEmptyCell,
+    moveCursor
   } from "../store.js";
   import MousePan from "./MousePan.svelte";
   import Toolbar from "./Toolbar.svelte";
   import { undo, redo, replaceCell } from "../commands";
 
+  function automaticallyShowMobileControls() {
+    // check if screen is in portait mode
+    const aspectRatio = window.innerWidth / window.innerHeight;
+    if(aspectRatio <= 1) {
+      $settings.mobileControls = true;
+    }
+  }
+
   onMount(() => {
+    automaticallyShowMobileControls();
+
     if ($grid.data.length == 0) {
       createEmptyCanvas($grid.height, $grid.width);
     }
@@ -75,18 +86,6 @@
   };
   */
 
-  function moveCursor(axis, amount) {
-    $grid.stats.keysPressed++;
-    if (axis === "x") {
-      const newPos = $cursorPos.x + amount;
-      //clamp it from 0 to grid width
-      $cursorPos.x = Math.min(Math.max(parseInt(newPos), 0), $grid.width - 1);
-    } else {
-      const newPos = $cursorPos.y + amount;
-      //clamp it from 0 to grid height
-      $cursorPos.y = Math.min(Math.max(parseInt(newPos), 0), $grid.height - 1);
-    }
-  }
 </script>
 
 <div class="main-wrapper">
@@ -94,14 +93,6 @@
     <Toolbar />
   </div>
   <div class="canvas-wrapper">
-    {#if $settings.bigArrows}
-      <div class="arrows">
-        <div on:click={() => moveCursor("y", -1)}></div>
-        <div on:click={() => moveCursor("y", 1)}></div>
-        <div on:click={() => moveCursor("x", 1)}></div>
-        <div on:click={() => moveCursor("x", -1)}></div>
-      </div>
-    {/if}
     <div
       class="canvas"
       use:shortcut={{ code: "ArrowRight", callback: () => moveCursor("x", 1) }}
@@ -204,71 +195,5 @@
   }
   span {
     display: inline-block;
-  }
-  .arrows > div {
-    position: absolute;
-    opacity: 0.2;
-    user-select: none;
-    z-index: 2;
-    cursor: pointer;
-    &:hover {
-      opacity: 0.7;
-    }
-  }
-  .arrows > div:nth-child(1) {
-    top: 0;
-    left: 30px;
-    width: calc(100% - 60px);
-    height: 30px;
-    &::after {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      background-color: var(--foregroundColor);
-      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-    }
-  }
-  .arrows > div:nth-child(2) {
-    bottom: 0;
-    right: 30px;
-    width: calc(100% - 60px);
-    height: 30px;
-    &::after {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      background-color: var(--foregroundColor);
-      clip-path: polygon(100% 0, 0 0, 50% 100%);
-    }
-  }
-  .arrows > div:nth-child(3) {
-    bottom: 30px;
-    right: 0;
-    width: 30px;
-    height: calc(100% - 60px);
-    &::after {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      background-color: var(--foregroundColor);
-      clip-path: polygon(100% 50%, 0 0, 0 100%);
-    }
-  }
-  .arrows > div:nth-child(4) {
-    bottom: 30px;
-    left: 0;
-    width: 30px;
-    height: calc(100% - 60px);
-    &::after {
-      content: "";
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      background-color: var(--foregroundColor);
-      clip-path: polygon(100% 100%, 100% 0, 0 50%);
-    }
   }
 </style>

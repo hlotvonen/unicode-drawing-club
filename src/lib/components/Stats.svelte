@@ -49,8 +49,9 @@
     <li>keysPressed: {$grid.stats.keysPressed}</li>
     <li>numberOfUniqueGlyphs: {$grid.stats.numberOfUniqueGlyphs}</li>
   </ul>
-  <details>
+  <details open>
     <summary> Glyph count </summary>
+    (Note: click to select)
     <ul>
       {#each $grid.stats.unicodeFrequency as unicodeCountPairs}
         <!-- svelte-ignore a11y-click-events-have-key-events -->

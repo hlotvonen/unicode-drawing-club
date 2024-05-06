@@ -30,20 +30,22 @@
       4&times;
     </button>
   </div>
-  <div>
-    <button
-      on:click={() => replaceCell($cursorPos.y, $cursorPos.x, { ...$selected })}
-      >Insert</button
-    >
-    <button
-      on:click={() => replaceCell($cursorPos.y, $cursorPos.x, getEmptyCell())}
-      >Delete</button
-    >
-  </div>
-  <div>
-    <button on:click={() => undo()}>Undo</button>
-    <button on:click={() => redo()}>Redo</button>
-  </div>
+  <!--
+    <div>
+      <button
+        on:click={() => replaceCell($cursorPos.y, $cursorPos.x, { ...$selected })}
+        >Insert</button
+      >
+      <button
+        on:click={() => replaceCell($cursorPos.y, $cursorPos.x, getEmptyCell())}
+        >Delete</button
+      >
+    </div>
+    <div>
+      <button on:click={() => undo()}>Undo</button>
+      <button on:click={() => redo()}>Redo</button>
+    </div>
+  -->
 </div>
 
 <style>

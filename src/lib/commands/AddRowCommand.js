@@ -1,23 +1,35 @@
 // AddRowCommand.js
 export class AddRowCommand {
-  constructor(gridStore, getEmptyRow) {
+  constructor(gridStore, getEmptyRow, direction, y) {
     this.gridStore = gridStore;
-    this.getEmptyRow = getEmptyRow; // Function to create an empty row
+    this.getEmptyRow = getEmptyRow;
+    this.direction = direction;
+    this.y = y;
+    this.addedRowIndex = null;
   }
 
   execute() {
     this.gridStore.update((grid) => {
-      grid.data.push(this.getEmptyRow(grid.width)); // Assuming width represents the number of columns in a row
-      grid.height += 1; // Increment the height to reflect the added row
+      let newRowIndex = 0;
+      if(this.direction === 'down') {
+        newRowIndex = this.y + 1;
+        grid.data.splice(this.y + 1, 0, this.getEmptyRow(grid.width));
+      }
+      if(this.direction === 'up') {
+        newRowIndex = this.y;
+        grid.data.splice(this.y, 0, this.getEmptyRow(grid.width));
+      }
+      grid.height += 1;
+      this.addedRowIndex = newRowIndex;
       return { ...grid };
     });
   }
 
   undo() {
     this.gridStore.update((grid) => {
-      if (grid.height > 0) {
-        grid.data.pop(); // Remove the last row
-        grid.height -= 1; // Decrement the height to reflect the removed row
+      if (grid.height > 0 && this.addedRowIndex !== null) {
+        grid.data.splice(this.addedRowIndex, 1);
+        grid.height -= 1;
       }
       return { ...grid };
     });

@@ -1,3 +1,4 @@
+import { get } from 'svelte/store';
 import { writable } from "@macfja/svelte-persistent-store";
 
 export let timelapseRunning = writable("timelapseRunning", false);
@@ -36,7 +37,8 @@ export const settings = writable("settings", {
   glyphsZoom: 1,
   pageNumberLeft: 0,
   pageNumberRight: 0,
-  bigArrows: true,
+  mobileControls: true,
+  checkeredBackground: true
 });
 export function select(unicode, width) {
   selected.set({
@@ -63,26 +65,28 @@ export const getEmptyCell = () => {
   };
 };
 
-// Function to add a column to the canvas
-export const addColumn = () => {
-  grid.update((current) => {
-    current.data.forEach((row) => {
-      row.push(getEmptyCell()); // Add a new cell to each row
+export function updateStats(statToUpdate) {
+  if(statToUpdate === 'keysPressed') {
+    grid.update(current => {
+      return {
+        ...current,
+        stats: {
+          ...current.stats,
+          keysPressed: current.stats.keysPressed + 1
+        }
+      };
     });
-    current.width += 1; // Increment the width to reflect the added column
-    return current;
-  });
-};
+  }
+}
 
-// Function to subtract a column from the canvas
-export const removeColumn = () => {
-  grid.update((current) => {
-    if (current.width > 0) {
-      current.data.forEach((row) => {
-        row.pop(); // Remove the last cell from each row
-      });
-      current.width -= 1; // Decrement the width to reflect the removed column
-    }
-    return current;
+export function moveCursor(axis, amount) {
+  updateStats('keysPressed');
+
+  cursorPos.update(cursor => {
+      const gridValue = get(grid);
+      const newPos = cursor[axis] + amount;
+      const maxPos = axis === 'x' ? gridValue.width - 1 : gridValue.height - 1;
+      const clampedPos = Math.min(Math.max(parseInt(newPos), 0), maxPos);
+      return { ...cursor, [axis]: clampedPos };
   });
-};
+}
